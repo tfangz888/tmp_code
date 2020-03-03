@@ -1,0 +1,58 @@
+# mytimer.service in /etc/systemd/system/
+[Unit]
+Description=备份tomcat前一天的log
+
+[Service]
+Type=simple
+ExecStart=/home/toby/tmp/a.sh
+
+[Install]
+WantedBy=mylab.target
+
+
+
+
+# mytimer.timer in /etc/systemd/system/
+[Unit]
+Description=每天凌晨一点备份tomcat前一天的log
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+Unit=mytimer.service
+Persistent=true
+
+[Install]
+WantedBy=mylab.target
+
+
+
+
+
+
+WantedBy=timers.target
+WantedBy=multi-user.target
+WantedBy=basic.target
+WantedBy=default.target
+WantedBy=mytimer.target (custom user-defined name)
+
+
+
+# 启动定时任务
+systemctl daemon-reload  # 重新加载服务
+systemctl enable mytimer.service
+systemctl enable mytimer.timer
+systemctl start mytimer.timer
+
+# 查看timer运行状态
+systemctl list-timers # 查看所有定时器
+systemctl status mytimer.timer
+journalctl -f -u mytimer.timer # 查看定时器运行日志
+
+# 关闭定时任务
+systemctl disable mytimer.timer #关闭开机启动（即删除目录链接）
+systemctl stop mytimer.timer # 关闭单元
+systemctl stop mytimer.service
+
+
+# 删除timer 和Service文件后重新加载配置
+systemctl daemon-reload # 重新加载配置
