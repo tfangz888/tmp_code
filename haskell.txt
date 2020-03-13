@@ -1,0 +1,36 @@
+
+Real World Haskell 中文版
+http://cnhaskell.com/
+
+
+Functor, Applicative, 以及 Monad
+http://jiyinyiyong.github.io/monads-in-pictures/
+
+学校课
+https://github.com/bitemyapp/learnhaskell/blob/master/guide-zh_CN.md
+https://www.seas.upenn.edu/~cis194/spring15/lectures.html
+
+韩冬滴滴视频
+http://www.iqiyi.com/u/1355304922/feeds
+
+算法新解
+https://github.com/liuxinyu95/AlgoXY
+
+重拾Haskell
+https://www.zybuluo.com/delight/note/503796
+
+Functor, Applicative, 以及 Monad 的漫画阐释
+http://jiyinyiyong.github.io/monads-in-pictures/
+
+
+
+data Age = forall (k :: Nat). (18 <=k) =>Age(Proxy k)
+a18 = Age (Proxy :: Proxy 19)
+a17 = Age (Proxy :: Proxy 17)
+https://gugugu.readthedocs.io/en/latest
+约束http://www.voidcn.com/article/p-xxiszfdy-bvc.html
+
+
+LINUX下
+ghc -O a.hs  编译成EXE， 1M多
+ghc -O a.hs -dynamic 动态编译，更小20k
