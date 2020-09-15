@@ -43,12 +43,12 @@ onTick:{[NR; sym; price]
   generateSignal[]
   strategy[]
   postTick[]
-}
+  }
 
 strategy:{
   createOrder
-}
+  }
 
 excuteOrder:{
   fillOrder
-}
+  }
