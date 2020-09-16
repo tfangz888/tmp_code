@@ -5,9 +5,12 @@ anotherPrice:{[sym] $[sym=sym1; lastPriceOfSym2; lastPriceOfSym1]}
 
 newDiffHelper:{[sym; price] $[sym=sym1; lastPriceOfSym2 - price; price - lastPriceOfSym1]}
 
+a:217#reverse 1_delta diff1
+b:217#reverse 1_delta diff2
+diff:diff1, diff2
 
-high:56 /last 23 high
-low:34 /last 23 low
+high:56 /last 23 high  mmax
+low:34 /last 23 low    mmin
 diffBig:: (high - low) * 0.8
 middlePointHelper: {n:`int$0.1* count diff; avg n _ desc n _ asc diff}
 middlePoint:middlePointHelper[]
@@ -39,7 +42,11 @@ generateSignal:{[sym; price]
   }
 
 postTick[]
-onTick:{[NR; sym; price]
+
+onTick:{[tick] /[NR; sym; price]
+  NR: tick `NR;
+  sym: tick `sym;
+  price: tick `NewPrice;
   generateSignal[]
   strategy[]
   postTick[]
@@ -52,3 +59,13 @@ strategy:{
 excuteOrder:{
   fillOrder
   }
+
+
+
+myorders:([] ticknum:`int$(); sym:`symbol$(); direction:`symbol$(); price:`double$(); size:`long$(); ordertype:`symbol$(); other:`symbol$(); status:`symbol$(); fillPrice:`double$()) / direction:`Buy,`Sell; ordertype:`Limit`Market; status:new, fill,partialfill
+myorderevents: ([] ticknum:`int$(); direction:`symbol$(); price:`double$(); size:`long$(); ordertype:`symbol$(); other:`symbol$(); status:`symbol$())
+
+main:{onTick each t}
+main []
+
+7 div 2 = 3
