@@ -26,3 +26,17 @@ generatesignal:{[num] ?[;0b]}
 strategy:{} /如果有信号，就buy或sell
 
 
+Difference between rows in KDB/Q
+https://stackoverflow.com/questions/21031306/difference-between-rows-in-kdb-q
+q)trades: do magic with trades
+q)trades
+tickers dates     | pxs | delta
+------------------| --- | -----
+ibm     2013.05.01| 100 | 0
+bac     2013.01.05| 50  | 0
+dis     2013.02.03| 30  | 0
+gs      2013.02.11| 250 | 0
+ibm     2013.06.17| 110 | 10
+gs      2013.06.21| 240 | -10
+dis     2013.04.24| 45  | 15
+bac     2013.01.06| 48  | -2
