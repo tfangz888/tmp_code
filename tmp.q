@@ -69,3 +69,12 @@ main:{onTick each t}
 main []
 
 7 div 2 = 3
+
+q)2 0N#til 10
+0 1 2 3 4
+5 6 7 8 9
+q)0N 3#til 10
+0 1 2
+3 4 5
+6 7 8
+,9
