@@ -14,8 +14,8 @@ q)1 _/: indexes _ list
 5 6
 q)
 
-
-按照索引分级并求和
+get select avg colA, sum colB, first colC by sums colC<>prev colC from t
+按照索引分组并求和
 a: 1 0 1 1 0 1 -1 0 1 1 0
 sum each 0, index _ a
 
@@ -24,3 +24,10 @@ sum each 0, index _ a
 a: til 10
 a[1 2 3] : 10 20 30
 或 @[`a;1 2 3;:; 10 20 30]
+
+
+$[;;] /if单变量
+?[;;] /vector多变量if
+@[`a;1 2 3;:; 10 20 30] /元编程
+
+
