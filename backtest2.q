@@ -56,9 +56,14 @@ a:([]NR: -1 _ t `NR; sym:-1 _ t `sym; prevRangeState:prev rangeState; rangeState
 / b:select from a where differ rangeState
 
 a1:update EnterBuyPosSym2:0, ExitBuyPosSym2:0, EnterSellPosSym2:0, ExitSellPosSym2:0 from a
-a2:update EnterBuyPosSym2:1, ExitBuyPosSym2:0, EnterSellPosSym2:0, ExitSellPosSym2:0 from a1 where prevRangeState=-1, rangeState=-1 /开多， 另一个如何开空？
+a2:update EnterBuyPosSym2:1, ExitBuyPosSym2:0, EnterSellPosSym2:0, ExitSellPosSym2:0 from a1 where prevRangeState=2, rangeState=2 /开多， 另一个如何开空？
 sumsEnterBuyPosSym2::sums a2 `EnterBuyPosSym2
 
+exitList:a2 ExitBuyPosSym2
+index: exec i from exitList where prevRangeState=-1
+index:$[0 = first index;index;0,index]/以0开头
+index:$[((count exitList)-1) = first reverse index;index;reverse ((count a2)-1), reverse index] /结尾索引保证正确
+exitList [index]: sum each index _ a2 `EnterBuyPosSym2 /平仓赋值
 
 a: 1 0 1 1 0 1 -1 0 1 1 0
 sum each 0, index _ a
