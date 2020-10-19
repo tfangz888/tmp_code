@@ -40,3 +40,7 @@ sh = pd.concat(dataList, axis=1, sort=False)
 sh.columns = symbol_sh
 
 data = pd.concat([dl, zz, sh], axis=1, sort=False)
+
+# 转换字符串数据到数值型,取回的数据有大量的NaN
+for column in data:
+  data[column] = pd.to_numeric(data[column], errors='coerce')
