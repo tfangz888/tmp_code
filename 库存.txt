@@ -1,0 +1,42 @@
+exchanges = ["上海期货交易所", "郑州商品交易所", "大连商品交易所"]
+
+symbol_dl = ["玉米", "豆一", "豆二", "豆粕", "豆油", "棕榈", "焦炭", "焦煤", "胶合板", "铁矿石", "鸡蛋", "聚丙烯", "玉米淀粉", "乙二醇", "粳米", "苯乙烯"]
+symbol_zz = ["白糖",   "PTA"]
+# symbol_zz = ["强麦",   "普麦",   "棉花",   "白糖",   "PTA",   "菜油",   "早籼稻",   "甲醇",   "玻璃",   "菜籽",   "菜粕",   "粳稻",   "晚籼稻",   "硅铁",   "锰硅",   "动力煤",   "棉纱",   "苹果",   "红枣",   "尿素",   "纯碱",   "短纤"]
+symbol_sh = ["沪铜", "沪铝", "沪锌", "沪铅"]
+# symbol_sh = ["铜", "铝", "锌", "铅", "金", "银", "螺纹钢", "线材", "燃油", "橡胶", "沥青", "热卷", "锡", "镍", "纸浆", "不锈钢", "上期能源", "原油", "20号胶", "低硫燃油"]
+
+
+# http://data.eastmoney.com/ifdata/kcsj.html
+
+import akshare as ak
+import pandas as pd
+
+#############################
+dataList = []
+for sym in symbol_dl:
+  data = ak.futures_inventory_em(exchange="大连商品交易所", symbol=sym)
+  dataList.append(data['库存'])
+
+dl = pd.concat(dataList, axis=1, sort=False)
+dl.columns = symbol_dl
+
+#############################
+dataList = []
+for sym in symbol_zz:
+  data = ak.futures_inventory_em(exchange="郑州商品交易所", symbol=sym)
+  dataList.append(data['库存'])
+
+zz = pd.concat(dataList, axis=1, sort=False)
+zz.columns = symbol_zz  
+
+#############################
+dataList = []
+for sym in symbol_sh:
+  data = ak.futures_inventory_em(exchange="上海期货交易所", symbol=sym)
+  dataList.append(data['库存'])
+
+sh = pd.concat(dataList, axis=1, sort=False)
+sh.columns = symbol_sh
+
+data = pd.concat([dl, zz, sh], axis=1, sort=False)
