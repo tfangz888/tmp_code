@@ -20,3 +20,6 @@ for sym in vars_list_remove:
   all_vars_list.remove(sym)
   
   
+import plotly_express as px
+gapminder = px.data.gapminder() 
+px.scatter(gapminder, x='gdpPercap', y='lifeExp',color='continent',size='pop',size_max=60,hover_name='country')
