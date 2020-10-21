@@ -1,0 +1,22 @@
+all_vars_list=["CU", "abc", "NI", "WR"]
+
+start_day="20180712"
+end_day="20180719"
+
+import akshare as ak
+
+receiptData = []
+vars_list_remove = []
+for sym in vars_list:
+  data = ak.get_receipt(start_day=start_day, end_day=end_day, vars_list=[sym])
+  if len(data) > 0: 
+    receiptData.append(data[['receipt', 'date']])
+  else:
+    vars_list_remove.append(sym)
+  # print (data)
+
+# 删除没有取回的数据的品种
+for sym in vars_list_remove:
+  all_vars_list.remove(sym)
+  
+  
