@@ -7,7 +7,7 @@ import akshare as ak
 
 receiptData = []
 vars_list_remove = []
-for sym in vars_list:
+for sym in all_vars_list:
   data = ak.get_receipt(start_day=start_day, end_day=end_day, vars_list=[sym])
   if len(data) > 0: 
     receiptData.append(data[['receipt', 'date']])
