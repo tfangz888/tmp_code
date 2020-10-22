@@ -9,20 +9,28 @@ receiptData = []
 vars_list_remove = []
 for sym in all_vars_list:
   data = ak.get_receipt(start_day=start_day, end_day=end_day, vars_list=[sym])
-  if len(data) > 0: 
-    receiptData.append(data[['receipt', 'date']])
+  if len(data) > 0: # 真正取回了数据, 且分母不为0 
+    changed = data[['receipt_chg']] / data[['receipt']] 
+    receiptData.append(data[['receipt']])
   else:
     vars_list_remove.append(sym)
   # print (data)
+  
+receiptData.append(data[['date']]) # 添加日期列
 
 # 删除没有取回的数据的品种
 for sym in vars_list_remove:
   all_vars_list.remove(sym)
+all_vars_list.append('date') #列名
   
+import pandas as pd
+result = pd.concat(receiptData, axis=1, sort=False)
+result.columns = all_vars_list #列名
+
 # 画图
 import plotly.express as px
-df = px.data.stocks()
-fig = px.line(df, x="date", y=df.columns,
+# df = px.data.stocks()
+fig = px.line(result, x="date", y=result.columns,
               hover_data={"date": "|%B %d, %Y"},
               title='custom tick labels with ticklabelmode="period"')
 fig.update_xaxes(
