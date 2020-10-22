@@ -9,7 +9,7 @@ receiptData = []
 vars_list_remove = []
 for sym in all_vars_list:
   data = ak.get_receipt(start_day=start_day, end_day=end_day, vars_list=[sym])
-  if len(data) > 0 and data['receipt'].prod() > 0: # 真正取回了数据, 且分母不为0 
+  if len(data) > 0 and not 0 in data['receipt'].values: # 真正取回了数据, 且分母不为0 
     changed = data.apply(lambda x: x['receipt_chg'] * 100 / x['receipt'], axis=1) # 变化了百分比
     receiptData.append(changed)
   else:
@@ -21,12 +21,14 @@ receiptData.append(data[['date']]) # 添加日期列
 # 删除没有取回的数据的品种
 for sym in vars_list_remove:
   all_vars_list.remove(sym)
+  
 all_vars_list.append('date') #列名
   
 import pandas as pd
 result = pd.concat(receiptData, axis=1, sort=False)
 result.columns = all_vars_list #列名
 
+#######################################################################################
 # 画图
 import plotly.express as px
 # df = px.data.stocks()
