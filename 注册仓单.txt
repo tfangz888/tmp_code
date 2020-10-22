@@ -1,7 +1,7 @@
-all_vars_list=["CU", "abc", "NI", "WR"]
+all_vars_list=["CU", "abc", "NI", "WR"] # 所有品种
 
-start_day="20180712"
-end_day="20180719"
+start_day="20180712" # 开始时间
+end_day="20180719" # 结束时间
 
 import akshare as ak
 
