@@ -10,7 +10,8 @@ vars_list_remove = []
 for sym in all_vars_list:
   data = ak.get_receipt(start_day=start_day, end_day=end_day, vars_list=[sym])
   if len(data) > 0 and not 0 in data['receipt'].values: # 真正取回了数据, 且分母不为0 
-    changed = data.apply(lambda x: x['receipt_chg'] * 100 / x['receipt'], axis=1) # 变化了百分比
+    changed = data.apply(lambda x: (x['receipt_chg'] / x['receipt'] + 1), axis=1) # 变化到原来的比率
+    changed.cumprod() # 累积变化比率
     receiptData.append(changed)
   else:
     vars_list_remove.append(sym)
