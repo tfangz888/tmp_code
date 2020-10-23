@@ -1,10 +1,11 @@
+# 设置参数
 all_vars_list=["CU", "abc", "NI", "WR"] # 所有品种
-
 start_day="20180712" # 开始时间
 end_day="20180719" # 结束时间
 
 import akshare as ak
 
+# 下载数据
 receiptData = []
 vars_list_remove = []
 for sym in all_vars_list:
@@ -24,6 +25,7 @@ for sym in vars_list_remove:
   
 all_vars_list.append('date') #列名
   
+# 数据结果为result
 import pandas as pd
 result = pd.concat(receiptData, axis=1, sort=False)
 result.columns = all_vars_list #列名
