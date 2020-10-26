@@ -23,7 +23,7 @@ receiptData.append(data[['date']]) # 添加日期列
 for sym in vars_list_remove:
   all_vars_list.remove(sym)
   
-all_vars_list.append('date') #列名
+all_vars_list.append('date') #改列名
   
 # 数据结果为result
 import pandas as pd
