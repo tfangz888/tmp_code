@@ -36,10 +36,11 @@ result.to_csv("result.csv", index=0)
 #######################################################################################
 # 画图
 import plotly.express as px
-# df = px.data.stocks()
+# result = px.data.stocks()
+# result = pd.read_csv("/tmp/result.csv")
 fig = px.line(result, x="date", y=result.columns,
               hover_data={"date": "|%B %d, %Y"},
-              title='custom tick labels with ticklabelmode="period"')
+              title='注册仓单变化趋势')
 fig.update_xaxes(
     dtick="M1",
     tickformat="%b\n%Y",
