@@ -30,8 +30,8 @@ import pandas as pd
 result = pd.concat(receiptData, axis=1, sort=False)
 result.columns = all_vars_list #列名
 
-# 存成csv文件
-result.to_csv("result.csv")
+# 存成csv文件, 不存索引
+result.to_csv("result.csv", index=0) 
 #######################################################################################
 # 画图
 import plotly.express as px
