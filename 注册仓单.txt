@@ -13,11 +13,12 @@ for sym in all_vars_list:
   if len(data) > 0 and not 0 in data['receipt'].values: # 真正取回了数据, 且分母不为0 
     changed = data.apply(lambda x: (x['receipt_chg'] / x['receipt'] + 1), axis=1) # 变化到原来的比率
     receiptData.append(changed.cumprod())  # 累积变化比率
+    dateData = data.iloc[:,3] # 记录下日期列
   else:
     vars_list_remove.append(sym)
   # print (data)
   
-receiptData.append(data[['date']]) # 添加日期列
+receiptData.append(pd.to_datetime(dateData, format="%Y%m%d") ) # 添加日期列，由字符串改为日期型
 
 # 删除没有取回的数据的品种
 for sym in vars_list_remove:
