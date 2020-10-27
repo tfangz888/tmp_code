@@ -60,12 +60,16 @@ data = get_futures_daily_df.loc[get_futures_daily_df['symbol'] == sym, ['date', 
 dateData = data['date']
 data['date'] = pd.to_datetime(dateData, format="%Y%m%d") 
 
+# 存成csv文件, 不存索引
+data.to_csv("data.csv", index=0) 
 #######################################################################################
 # 价格与库存画在同一图中
 sym = 'CU'
 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+# data = pd.read_csv("/tmp/data.csv")
 
 # Create figure with secondary y-axis
 fig = make_subplots(specs=[[{"secondary_y": True}]])
