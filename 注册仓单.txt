@@ -34,7 +34,7 @@ result.columns = all_vars_list #列名
 # 存成csv文件, 不存索引
 result.to_csv("result.csv", index=0) 
 #######################################################################################
-# 画图
+# 画图, 多个品种的库存曲线图
 import plotly.express as px
 # result = px.data.stocks()
 # result = pd.read_csv("/tmp/result.csv")
