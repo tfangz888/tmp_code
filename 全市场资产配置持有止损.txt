@@ -3,7 +3,9 @@ import sys
 startDate = sys.argv[1] # '2020-09-09'
 generateAnotherAccount = False
 
-symbols = df[startDate]
+startDaySeries = df[startDate]
+startDaySeries = startDaySeries[np.NaN != startDaySeries] # 去掉NaN非法数据
+symbols = list(oneDaySeries.columns)
 for oneDay in df:
   mostLossSym = getMostLossSym(oneDay) # 有可能返回None, 返回下跌幅度最大的
   if mostLossSym in symbols: # 在sym列表内就删除
@@ -19,5 +21,3 @@ import os
 cmd = "git --version"
 returned_value = os.system(cmd)  # returns the exit code in unix
 print('returned value:', returned_value)
-
-  
