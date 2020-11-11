@@ -5,9 +5,11 @@ generateAnotherAccount = False
 
 startDaySeries = df[startDate]
 startDaySeries = startDaySeries[np.NaN != startDaySeries] # 去掉NaN非法数据
-symbols = list(oneDaySeries.columns)
+longSymbols = list(oneDaySeries.columns)
+shortSymbols = list(oneDaySeries.columns)
 for oneDay in df:
-  mostLossSym = getMostLossSym(oneDay) # 有可能返回None, 返回下跌幅度最大的
+  mostLossSymLong = getMostLossSymLong(oneDay) # 有可能返回None, 返回下跌幅度最大的
+  mostLossSymShort = getMostLossSymShort(oneDay)
   if mostLossSym in symbols: # 在sym列表内就删除
     stopLoss(mostChangeSym)
   elif (not generateAnotherAccount) and (None != mostLossSym): # 如果没建立过新帐户,就建立一个新帐户. 如果返回的是新品种, 也会建立新帐户
