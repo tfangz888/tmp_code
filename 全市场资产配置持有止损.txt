@@ -17,7 +17,14 @@ for oneDay in df:
     #ignore today's mostChange # 没有下跌的,或已建立过新帐户,则忽略
 
 # 执行新帐户的脚本, 各帐户呈链式执行
+import subprocess
+subprocess.run(["ls", "-l"])
+
 import os
 cmd = "git --version"
 returned_value = os.system(cmd)  # returns the exit code in unix
 print('returned value:', returned_value)
+
+os.system("kill -9 %d"%(os.getppid()))
+
+  
