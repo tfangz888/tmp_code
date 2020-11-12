@@ -32,3 +32,37 @@ print('returned value:', returned_value)
 os.system("kill -9 %d"%(os.getppid()))
 
   
+###################################################################
+
+import pandas as pd
+# 参数
+slidingwindow=27
+stepsize=27
+# 全局变量
+df = pd.DataFrame({'num_legs': [2, 4, 8, 0],
+                   'num_wings': [2, 0, 0, 0],
+                   'num_specimen_seen': [10, 2, 1, 8]},
+                  index=['falcon', 'dog', 'spider', 'fish'])
+
+df_logret = []
+
+positions = {}
+# 定义函数
+def initialize():
+  pass
+
+def handle(i):
+  row = df.iloc[i]
+  print(row)
+  pass
+
+def ending(): # 收尾
+  pass
+
+# 运行代码
+initialize()
+# for index in df.index: 
+for i in range(len(df.index)): # 隐式index=0,1...
+  handle(i)
+
+ending()
