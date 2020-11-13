@@ -76,7 +76,7 @@ t: f each t / table的每一个行中的0设置为NaN
 
 t1: `date xkey t
 deltas0:{first[x] -': x}
-t2:deltas0 log t1
+t2:deltas0 log t1 / t2多了一列x, 有问题
 `:/tmp/t2.csv 0: csv 0: t2
 `:/tmp/last.csv 0: csv 0: flip enlist each last t
 
