@@ -96,12 +96,12 @@ def sort_row(row):
   ret = ret.sort_values()
   return list(ret.index)
   
-orders = pd.DataFrame(columns=['datetime', 'sym', 'price', 'size', 'subaccount']  
+orders = pd.DataFrame(columns=['datetime', 'sym', 'price', 'size', 'subaccount'])
 def stopLoss(d, sym, size):
   price = df.loc[d,sym]
   # ID 日期datetime  符号sym  price 单量及方向size employee 虚拟子帐户subaccount, automatic
   orders.loc[len(orders)] = [d, sym, price, size, 1]
-  print(f"datetime:{d}, sym:{sym}, price:{price}, size:{size}, subaccount:0")
+  print(f"datetime:{d}, sym:{sym}, price:{price}, size:{size}, subaccount:1")
 
 positions = [(x,1) for x in syms] + [(x, -1) for x in syms]
 return_log = pd.read_csv("/tmp/t2.csv", parse_dates = ['date']) 
