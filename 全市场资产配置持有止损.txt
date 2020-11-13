@@ -70,6 +70,10 @@ ending()
 ######################################################################
 t:("DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"; enlist ",") 0: `:/tmp/a.csv
 
+/ 处理非法数据, 避免出错除0, 或log 0
+f: {(x where x=0.0):0n;x} / 把0设置成NaN
+t: f each t / table的每一个行中的0设置为NaN
+
 t1: `date xkey t
 deltas0:{first[x] -': x}
 t2:deltas0 log t1
