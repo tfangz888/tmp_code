@@ -99,17 +99,21 @@ def sort_row(row):
 def stopLoss(d, sym, size):
   price = df.loc[d,sym]
   # ID 日期datetime  符号sym  price 单量及方向size employee 虚拟子帐户subaccount
-  print("{d}, {sym}, {price}, {size}")
+  print(f"datetime:{d}, sym:{sym}, price:{price}, size:{size}, subaccount:0")
 
 positions = [(x,1) for x in syms] + [(x, -1) for x in syms]
 return_log = pd.read_csv("/tmp/t2.csv", parse_dates = ['date']) 
 return_log = return_log.set_index('date')
 return_log = return_log[1:]
 for d in return_log.index:
+  print(d) # 打印日期
   row = return_log.loc[d]
+  print(len(row))
   loss_syms = sort_row(row)
+  print(len(loss_syms))
   for (sym, size) in loss_syms:
-    if sym in positions:
+    print(f'sym:{sym}, size:{size}')
+    if (sym,size) in positions:
       stopLoss(d, sym, size)
       positions.remove((sym,size))
       break
