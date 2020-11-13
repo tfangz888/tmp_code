@@ -94,9 +94,10 @@ def sort_row(row):
   ret = ret.sort_values()
   return list(ret.index)
   
-def stopLoss(d, sym, pos):
+def stopLoss(d, sym, size):
   price = df.loc[d,sym]
-  print("{d}, {sym}, {price}, {pos}")
+  # ID 日期datetime  符号sym  price 单量及方向size employee 虚拟子帐户subaccount
+  print("{d}, {sym}, {price}, {size}")
 
 positions = [(x,1) for x in syms] + [(x, -1) for x in syms]
 return_log = pd.read_csv("/tmp/t2.csv", parse_dates = ['date']) 
@@ -105,10 +106,10 @@ return_log = return_log[1:]
 for d in return_log.index:
   row = return_log.loc[d]
   loss_syms = sort_row(row)
-  for (sym, pos) in loss_syms:
+  for (sym, size) in loss_syms:
     if sym in positions:
-      stopLoss(d, sym, pos)
-      positions.remove((sym,pos))
+      stopLoss(d, sym, size)
+      positions.remove((sym,size))
       break
   
   
