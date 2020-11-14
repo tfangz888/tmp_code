@@ -124,5 +124,5 @@ for d in return_log.index:
       
 orders.to_csv('/tmp/orders.csv',index=False)
   
-  
+orders:("DSFII"; enlist ",") 0: `:/tmp/orders.csv
 
