@@ -112,14 +112,17 @@ for d in return_log.index:
   print(d) # 打印日期
   row = return_log.loc[d]
   print(len(row))
-  loss_syms = sort_row(row)
+  loss_syms = sort_row(row)  
   print(len(loss_syms))
+  loss_syms = loss_syms[:2] # 仅取2个
   for (sym, size) in loss_syms:
     print(f'sym:{sym}, size:{size}')
     if (sym,size) in positions:
       stopLoss(d, sym, size)
       positions.remove((sym,size))
       break
+      
+orders.to_csv('/tmp/orders.csv',index=False)
   
   
 
