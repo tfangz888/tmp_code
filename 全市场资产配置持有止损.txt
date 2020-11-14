@@ -87,12 +87,12 @@ import numpy as np
 
 def sort_row(row):
   c = d = None
-  a = row[row.notna()] # 过滤掉NaN
-  longBuy = a[a<0] # 只要负收益
-  longBuy.index  = [(x, -1) for x in longBuy.index]
-  a = np.negative(a) # short
+  a = row[row.notna()] # 过滤掉NaN  
   shortSell = a[a<0] # 只要负收益
   shortSell.index  = [(x, 1) for x in shortSell.index]
+  a = np.negative(a) # short  
+  longBuy = a[a<0] # 只要负收益
+  longBuy.index  = [(x, -1) for x in longBuy.index]
   ret = longBuy.append(shortSell)
   ret = ret.sort_values()
   return list(ret.index)
