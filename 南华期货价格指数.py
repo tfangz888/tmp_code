@@ -17,7 +17,7 @@ df_all = pd.concat(df, axis=1)
 if not (len(df_all.columns) == len(syms)):
   print("download data amount not correct")
   
-df = df_all[df_all.index.day == 7] # 只取第每月7号的数据
+df = df_all[df_all.index.day == 7] # 只取第每月7号的数据, 有的月份没有7号交易日，就会取不到
 df.to_csv('/tmp/a.csv')
 
 
