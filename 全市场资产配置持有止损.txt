@@ -119,7 +119,7 @@ for d in return_log.index:
     print(f'sym:{sym}, size:{size}')
     if (sym,size) in positions:
       stopLoss(d, sym, size)
-      positions.remove((sym,size))
+      positions.remove((sym, -size))
       break
       
 orders.to_csv('/tmp/orders.csv',index=False)
