@@ -83,6 +83,7 @@ const html = `<!doctype html>
       <div id="contextMenu">
         <div class="item" data-action="hideOthers">隐藏非高亮线</div>
         <div class="item" data-action="showAll">显示所有</div>
+        <div class="item" data-action="zeroDate">选中日期归零</div>
         <div class="item" data-action="menu3">右键菜单3</div>
       </div>
     </div>
@@ -118,6 +119,8 @@ const html = `<!doctype html>
     const baseNames = data.map((d) => d.customdata || d.name);
     let activeTraceIndex = null;
     const activeTraceSet = new Set();
+    let lastHoverIndex = null;
+    const originalYs = data.map((trace) => trace.y.slice());
     let suppressNextClick = false;
 
     const applyHighlight = (traceIndex) => {
@@ -151,6 +154,7 @@ const html = `<!doctype html>
     chart.on('plotly_hover', (event) => {
       const points = event.points.slice();
       points.sort((a, b) => b.y - a.y);
+      lastHoverIndex = points[0].pointIndex;
       const header = '<div style="font-weight:600;margin-bottom:4px;">' +
         formatDate(points[0].x) +
         '</div>';
@@ -273,6 +277,22 @@ const html = `<!doctype html>
         }
       } else if (action === 'showAll') {
         Plotly.restyle('chart', { visible: data.map(() => true) });
+      } else if (action === 'zeroDate') {
+        if (lastHoverIndex !== null) {
+          const newYs = originalYs.map((ys) => {
+            const base = ys.map((v) => Number(v));
+            const rebased = new Array(ys.length);
+            rebased[lastHoverIndex] = base[lastHoverIndex];
+            for (let i = lastHoverIndex - 1; i >= 0; i -= 1) {
+              rebased[i] = rebased[i + 1] - base[i];
+            }
+            for (let i = lastHoverIndex + 1; i < ys.length; i += 1) {
+              rebased[i] = rebased[i - 1] + base[i];
+            }
+            return rebased.map((v) => parseFloat(v.toFixed(2)));
+          });
+          Plotly.restyle('chart', { y: newYs });
+        }
       } else {
         console.log('context menu:', action);
       }
