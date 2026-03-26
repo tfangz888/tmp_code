@@ -41,6 +41,8 @@ const traces = series.map((s) => ({
   type: 'scatter',
   mode: 'lines',
   name: s.name,
+  customdata: s.name,
+  line: { width: 2 },
   hoverinfo: 'none',
 }));
 
@@ -67,6 +69,9 @@ const html = `<!doctype html>
     .hoverValue .dot { text-align: center; }
     .hoverValue .dec { text-align: left; color: #111827; }
     .hoverDivider { border-top: 1px solid #111827; margin: 4px 0; }
+    #contextMenu { position: absolute; background: #fff; color: #111827; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 140px; padding: 6px 0; display: none; z-index: 10; }
+    #contextMenu .item { padding: 6px 12px; cursor: pointer; font-size: 12px; }
+    #contextMenu .item:hover { background: #f3f4f6; }
   </style>
 </head>
 <body>
@@ -75,6 +80,11 @@ const html = `<!doctype html>
       <div id="chart"></div>
       <div class="tip">提示：点击图例可隐藏/显示单条线；双击图例可独显该线。</div>
       <div id="hoverBox"></div>
+      <div id="contextMenu">
+        <div class="item" data-action="hideOthers">隐藏非高亮线</div>
+        <div class="item" data-action="showAll">显示所有</div>
+        <div class="item" data-action="menu3">右键菜单3</div>
+      </div>
     </div>
   </div>
 
@@ -104,6 +114,33 @@ const html = `<!doctype html>
 
     const chart = document.getElementById('chart');
     const hoverBox = document.getElementById('hoverBox');
+    const contextMenu = document.getElementById('contextMenu');
+    const baseNames = data.map((d) => d.customdata || d.name);
+    let activeTraceIndex = null;
+    const activeTraceSet = new Set();
+    let suppressNextClick = false;
+
+    const applyHighlight = (traceIndex) => {
+      if (traceIndex === null || traceIndex === undefined) {
+        activeTraceIndex = null;
+        activeTraceSet.clear();
+        Plotly.restyle('chart', { 'line.width': data.map(() => 2), name: baseNames });
+        return;
+      }
+      const widths = data.map(() => 2);
+      const names = baseNames.map((name, idx) => (idx === traceIndex ? '<b>' + name + '</b>' : name));
+      widths[traceIndex] = 4;
+      activeTraceIndex = traceIndex;
+      activeTraceSet.clear();
+      activeTraceSet.add(traceIndex);
+      Plotly.restyle('chart', { 'line.width': widths, name: names });
+    };
+
+    const applyMultiHighlight = () => {
+      const widths = data.map((_, idx) => (activeTraceSet.has(idx) ? 4 : 2));
+      const names = baseNames.map((name, idx) => (activeTraceSet.has(idx) ? '<b>' + name + '</b>' : name));
+      Plotly.restyle('chart', { 'line.width': widths, name: names });
+    };
     const pad2 = (n) => String(n).padStart(2, '0');
     const formatDate = (value) => {
       const d = new Date(value);
@@ -121,11 +158,12 @@ const html = `<!doctype html>
       const rows = points
         .map((p, idx) => {
           const color = (p.fullData && p.fullData.line && p.fullData.line.color) || '#64748b';
+          const name = p.customdata || p.data.customdata || p.data.name;
           const parts = p.y.toFixed(2).split('.');
           const row = '<div class="hoverItem"><span class="hoverSwatch" style="background:' +
             color +
             '"></span><span class="hoverName">' +
-            p.data.name +
+            name +
             '</span><span class="hoverValue"><span class="int">' +
             parts[0] +
             '</span><span class="dot">.</span><span class="dec">' +
@@ -151,6 +189,94 @@ const html = `<!doctype html>
 
     chart.on('plotly_unhover', () => {
       hoverBox.style.display = 'none';
+    });
+
+    chart.on('plotly_click', (event) => {
+      if (event.event && event.event.button === 2) return;
+      if (!event.points || !event.points.length) return;
+      const rect = chart.getBoundingClientRect();
+      const mouseY = (event.event && event.event.clientY) ? (event.event.clientY - rect.top) : null;
+      const maxPickDistance = 4;
+      let picked = event.points[0];
+      if (mouseY !== null && event.points.length > 1) {
+        let best = Infinity;
+        event.points.forEach((p) => {
+          const yPx = p.yaxis.l2p(p.y) + p.yaxis._offset;
+          const dist = Math.abs(mouseY - yPx);
+          if (dist < best) {
+            best = dist;
+            picked = p;
+          }
+        });
+        if (best > maxPickDistance) {
+          suppressNextClick = true;
+          applyHighlight(null);
+          return;
+        }
+      }
+      const traceIndex = picked.curveNumber;
+      suppressNextClick = true;
+      if (event.event && event.event.ctrlKey) {
+        if (activeTraceSet.has(traceIndex)) {
+          activeTraceSet.delete(traceIndex);
+        } else {
+          activeTraceSet.add(traceIndex);
+        }
+        activeTraceIndex = activeTraceSet.size ? traceIndex : null;
+        if (activeTraceSet.size === 0) {
+          applyHighlight(null);
+        } else {
+          applyMultiHighlight();
+        }
+        return;
+      }
+      if (activeTraceIndex === traceIndex) {
+        applyHighlight(null);
+      } else {
+        applyHighlight(traceIndex);
+      }
+    });
+
+    chart.addEventListener('click', (event) => {
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        return;
+      }
+      if (event.target && event.target.closest && event.target.closest('.legend')) return;
+      applyHighlight(null);
+    });
+
+    chart.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+      const rect = chart.getBoundingClientRect();
+      const maxLeft = rect.width - contextMenu.offsetWidth - 8;
+      const maxTop = rect.height - contextMenu.offsetHeight - 8;
+      const left = Math.min(Math.max(event.clientX - rect.left, 8), maxLeft);
+      const top = Math.min(Math.max(event.clientY - rect.top, 8), maxTop);
+      contextMenu.style.left = left + 'px';
+      contextMenu.style.top = top + 'px';
+      contextMenu.style.display = 'block';
+    });
+
+    document.addEventListener('click', () => {
+      contextMenu.style.display = 'none';
+    });
+
+    contextMenu.addEventListener('click', (event) => {
+      const item = event.target.closest('.item');
+      if (!item) return;
+      const action = item.getAttribute('data-action');
+      if (action === 'hideOthers') {
+        if (activeTraceSet.size > 0) {
+          const visible = data.map((_, idx) => (activeTraceSet.has(idx) ? true : 'legendonly'));
+          Plotly.restyle('chart', { visible });
+        }
+      } else if (action === 'showAll') {
+        Plotly.restyle('chart', { visible: data.map(() => true) });
+      } else {
+        console.log('context menu:', action);
+      }
+      contextMenu.style.display = 'none';
     });
   </script>
 </body>
