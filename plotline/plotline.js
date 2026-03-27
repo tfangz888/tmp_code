@@ -8,43 +8,105 @@ function generateDates(count) {
   for (let i = 0; i < count; i += 1) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
-    dates.push(d.toISOString().slice(0, 10));
+    const yyyy = String(d.getFullYear());
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    dates.push(`${yyyy}${mm}${dd}`);
   }
   return dates;
 }
 
-function generateSeries(count, points) {
-  const series = [];
-  for (let i = 0; i < count; i += 1) {
-    const data = [];
-    let value = (Math.random() - 0.5) * 40;
-    for (let j = 0; j < points; j += 1) {
-      value += (Math.random() - 0.5) * 8;
-      data.push(parseFloat(value.toFixed(2)));
-    }
-    series.push({
-      name: `Line ${i + 1}`,
-      values: data,
-    });
+function generateValues(points) {
+  const data = [];
+  let value = (Math.random() - 0.5) * 40;
+  for (let j = 0; j < points; j += 1) {
+    value += (Math.random() - 0.5) * 8;
+    data.push(parseFloat(value.toFixed(2)));
   }
-  return series;
+  return data;
 }
 
-const lineCount = 20;
-const pointCount = 60;
-const dates = generateDates(pointCount);
-const series = generateSeries(lineCount, pointCount);
+function generateCsvIfMissing(filePath, points) {
+  if (fs.existsSync(filePath)) return;
+  const dates = generateDates(points);
+  const values = generateValues(points);
+  const rows = ['date,value'];
+  for (let i = 0; i < points; i += 1) {
+    rows.push(`${dates[i]},${values[i].toFixed(2)}`);
+  }
+  fs.writeFileSync(filePath, rows.join('\n'), 'utf8');
+}
 
-const traces = series.map((s) => ({
-  x: dates,
-  y: s.values,
+function loadCsv(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8').trim();
+  const lines = content.split(/\r?\n/);
+  const header = lines.shift();
+  if (!header || !/date\s*,\s*value/i.test(header)) {
+    throw new Error(`Invalid CSV header in ${filePath}. Expected: date,value`);
+  }
+  const x = [];
+  const y = [];
+  const normalizeDate = (value) => {
+    const trimmed = value.trim();
+    if (/^\d{8}$/.test(trimmed)) {
+      return `${trimmed.slice(0, 4)}-${trimmed.slice(4, 6)}-${trimmed.slice(6, 8)}`;
+    }
+    return trimmed;
+  };
+  lines.forEach((line) => {
+    if (!line.trim()) return;
+    const parts = line.split(',');
+    const date = (parts[0] || '').trim();
+    const value = parseFloat((parts[1] || '').trim());
+    if (!date || Number.isNaN(value)) return;
+    x.push(normalizeDate(date));
+    y.push(parseFloat(value.toFixed(2)));
+  });
+  return { x, y };
+}
+
+const pointCount = 60;
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
+let csvFiles = fs.readdirSync(dataDir).filter((file) => file.toLowerCase().endsWith('.csv'));
+if (csvFiles.length === 0) {
+  ['line1.csv', 'line2.csv', 'line3.csv'].forEach((file) => {
+    generateCsvIfMissing(path.join(dataDir, file), pointCount);
+  });
+  csvFiles = fs.readdirSync(dataDir).filter((file) => file.toLowerCase().endsWith('.csv'));
+}
+csvFiles.sort();
+
+const traces = csvFiles.map((file, idx) => {
+  const filePath = path.join(dataDir, file);
+  const data = loadCsv(filePath);
+  const baseName = path.basename(file, path.extname(file));
+  const displayName = baseName || `Line ${idx + 1}`;
+  return {
+    x: data.x,
+    y: data.y,
+    type: 'scatter',
+    mode: 'lines',
+    name: displayName,
+    customdata: displayName,
+    line: { width: 2 },
+    hoverinfo: 'none',
+  };
+});
+
+const tracesWithFallback = traces.length ? traces : [{
+  x: [],
+  y: [],
   type: 'scatter',
   mode: 'lines',
-  name: s.name,
-  customdata: s.name,
+  name: 'Line 1',
+  customdata: 'Line 1',
   line: { width: 2 },
   hoverinfo: 'none',
-}));
+}];
 
 const html = `<!doctype html>
 <html lang="zh-CN">
@@ -52,7 +114,7 @@ const html = `<!doctype html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Plotly 多折线图</title>
-  <script src="plotly-2.30.0.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
   <style>
     html, body { margin: 0; width: 100%; height: 100%; }
     body { font-family: "Source Han Sans", "Microsoft YaHei", sans-serif; background: #f6f7fb; }
@@ -90,11 +152,11 @@ const html = `<!doctype html>
   </div>
 
   <script>
-    const data = ${JSON.stringify(traces)};
+    const data = ${JSON.stringify(tracesWithFallback)};
     const layout = {
       xaxis: {
         type: 'date',
-        tickformat: '%y%m%d',
+        tickformat: '%Y%m%d',
         showspikes: true,
         spikemode: 'across',
         spikesnap: 'cursor',
@@ -148,7 +210,7 @@ const html = `<!doctype html>
     const formatDate = (value) => {
       const d = new Date(value);
       if (Number.isNaN(d.getTime())) return String(value);
-      return String(d.getFullYear()).slice(2) + pad2(d.getMonth() + 1) + pad2(d.getDate());
+      return String(d.getFullYear()) + pad2(d.getMonth() + 1) + pad2(d.getDate());
     };
 
     chart.on('plotly_hover', (event) => {
