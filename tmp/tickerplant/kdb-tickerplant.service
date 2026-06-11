@@ -1,0 +1,31 @@
+[Unit]
+Description=KDB+ Tickerplant Service
+After=network.target
+Requires=network.target
+
+[Service]
+# 核心：改为 simple 类型
+Type=simple
+User=toby
+Group=toby
+WorkingDirectory=/finlab/Tech/PlatformArch/kdb/tickerplant/
+# 关键：去掉后台运行的逻辑，让 q 前台运行（simple 要求）
+ExecStart=/finlab.basic/kx/bin/q /finlab/Tech/PlatformArch/kdb/tickerplant/tick.q symA /finlab/dataset/MarketData/kdb/tickerplant/A -t 100 -p 5010
+# 解决 systemctl start 阻塞问题：设置启动超时
+TimeoutStartSec=10
+# 标记服务启动完成（即使 q 长期前台运行）
+RemainAfterExit=yes
+# 保留输出重定向（也可改为日志文件便于排查）
+StandardOutput=null
+StandardError=null
+# 异常自动重启
+Restart=on-failure
+RestartSec=5
+# 确保进程清理彻底
+KillMode=process
+# 防止服务被 OOM 杀死（可选，增强稳定性）
+OOMScoreAdjust=-1000
+
+[Install]
+WantedBy=multi-user.target
+

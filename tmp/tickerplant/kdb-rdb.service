@@ -1,0 +1,31 @@
+[Unit]
+Description=KDB+ RDB Service
+After=network.target kdb-tickerplant.service kdb-hdb.service
+Requires=network.target kdb-tickerplant.service kdb-hdb.service
+
+[Service]
+# 核心修改：改为 simple 类型
+Type=simple
+User=toby
+Group=toby
+WorkingDirectory=/finlab/Tech/PlatformArch/kdb/tickerplant/
+# 保持原启动命令（simple 要求前台运行，无需加 &）
+ExecStart=/finlab.basic/kx/bin/q /finlab/Tech/PlatformArch/kdb/tickerplant/tick/r.q :5010 :5012 -p 5011
+# 关键：解决 systemctl start 阻塞问题，10秒后认定启动完成
+TimeoutStartSec=10
+# 关键：标记服务启动完成（适配 q 长期前台运行）
+RemainAfterExit=yes
+# 保留原有输出重定向
+StandardOutput=null
+StandardError=null
+# 保留异常重启策略
+Restart=on-failure
+RestartSec=5
+# 确保进程清理彻底
+KillMode=process
+# 可选：防止服务被 OOM 杀死，增强稳定性
+OOMScoreAdjust=-1000
+
+[Install]
+WantedBy=multi-user.target
+
